@@ -120,3 +120,45 @@ def download_exe(url, dest_dir=None):
 
     logger.info("Downloaded update to %s", dest_path)
     return dest_path
+
+
+# ---------------------------------------------------------------------------
+# 4. Wrapper — ties all three steps together
+# ---------------------------------------------------------------------------
+
+def check_and_update(current_version, download_dir=None, manifest_url=None):
+    """Fetch manifest, compare versions, and download the EXE if newer.
+
+    This is the main entry point that combines all three steps:
+    fetch_manifest -> is_update_needed -> download_exe.
+
+    :param current_version: The bot's current internal version (e.g. "1.2.0").
+    :type current_version: str
+    :param download_dir: Directory to save the downloaded EXE. Defaults to cwd.
+    :type download_dir: str or None
+    :param manifest_url: URL of the version manifest. Defaults to MANIFEST_URL.
+    :type manifest_url: str or None
+    :returns: Path to the downloaded file if an update was downloaded, or None
+        if already up-to-date.
+    :rtype: str or None
+    :raises RuntimeError: If the manifest cannot be fetched or download fails.
+    """
+    manifest = fetch_manifest(url=manifest_url)
+    latest_version = manifest["latest"]
+    exe_url = manifest["url"]
+
+    if not is_update_needed(current_version, latest_version):
+        logger.info(
+            "Already up-to-date (current=%s, latest=%s).",
+            current_version,
+            latest_version,
+        )
+        return None
+
+    logger.info(
+        "New version available: %s (current: %s). Downloading...",
+        latest_version,
+        current_version,
+    )
+
+    return download_exe(exe_url, dest_dir=download_dir)

@@ -23,6 +23,7 @@ except ImportError:
 logger = logging.getLogger(__name__)
 
 MANIFEST_URL = "https://www.mygoto4it.com/version.json"
+CURRENT_VERSION = "8.3"
 
 
 # ---------------------------------------------------------------------------
@@ -162,3 +163,17 @@ def check_and_update(current_version, download_dir=None, manifest_url=None):
     )
 
     return download_exe(exe_url, dest_dir=download_dir)
+
+
+# ---------------------------------------------------------------------------
+# Run it
+# ---------------------------------------------------------------------------
+
+if __name__ == "__main__":
+    logging.basicConfig(level=logging.INFO)
+
+    result = check_and_update(CURRENT_VERSION)
+    if result:
+        print("Update downloaded to:", result)
+    else:
+        print("Already up-to-date!")
